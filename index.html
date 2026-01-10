@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India Income Tax Regime Comparator FY 2025-26</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .toggle-container { margin-bottom: 20px; }
+        label { font-weight: bold; }
+        input[type="checkbox"] { transform: scale(1.5); margin-left: 10px; }
+        input[type="number"] { padding: 10px; font-size: 16px; width: 200px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .results { margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .best { background-color: #d4edda; font-weight: bold; }
+        .savings { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>India Income Tax: New vs Old Regime Comparator (FY 2025-26)</h1>
+    <p>Enter your gross salary and toggle between LPA or monthly salary.</p>
+    
+    <div class="toggle-container">
+        <label for="toggle">Monthly Salary (₹)</label>
+        <input type="checkbox" id="toggle">
+        <span id="salaryLabel">Annual Salary (LPA)</span>
+    </div>
+    
+    <input type="number" id="salaryInput" placeholder="Enter salary (e.g. 10 for 10 LPA or 83333)" step="0.01" min="0">
+    <button onclick="calculate()">Calculate Best Regime</button>
+    
+    <div id="results" class="results"></div>
+
+    <script>
+        const toggle = document.getElementById('toggle');
+        const salaryInput = document.getElementById('salaryInput');
+        const salaryLabel = document.getElementById('salaryLabel');
+
+        toggle.addEventListener('change', function() {
+            if (this.checked) {
+                salaryLabel.textContent = 'Monthly Salary (₹)';
+                salaryInput.placeholder = 'Enter monthly salary (e.g. 83333)';
+            } else {
+                salaryLabel.textContent = 'Annual Salary (LPA)';
+                salaryInput.placeholder = 'Enter LPA (e.g. 10)';
+            }
+        });
+
+        function calculateTaxNew(income) {
+            // New regime slabs FY 2025-26 [web:1][page:2]
+            let tax = 0;
+            if (income > 2400000) tax += (income - 2400000) * 0.30;
+            if (income > 2000000) tax += Math.min(income - 2000000, 400000) * 0.25;
+            if (income > 1600000) tax += Math.min(income - 1600000, 400000) * 0.20;
+            if (income > 1200000) tax += Math.min(income - 1200000, 400000) * 0.15;
+            if (income > 800000) tax += Math.min(income - 800000, 400000) * 0.10;
+            if (income > 400000) tax += Math.min(income - 400000, 400000) * 0.05;
+            
+            // Rebate u/s 87A up to 60k if income <=12L [web:1][page:2]
+            if (income <= 1200000) tax = Math.min(tax, 60000);
+            
+            // Cess 4%
+            tax *= 1.04;
+            return Math.round(tax);
+        }
+
+        function calculateTaxOld(income) {
+            // Assume standard deduction 50k old regime [web:1][page:2]
+            let taxable = income - 50000;
+            
+            let tax = 0;
+            if (taxable > 1000000) tax += (taxable - 1000000) * 0.30;
+            if (taxable > 500000) tax += Math.min(taxable - 500000, 500000) * 0.20;
+            if (taxable > 250000) tax += Math.min(taxable - 250000, 250000) * 0.05;
+            
+            // Rebate u/s 87A up to 12.5k if income <=5L [web:1][page:2]
+            if (taxable <= 500000) tax = Math.min(tax, 12500);
+            
+            // Cess 4%
+            tax *= 1.04;
+            return Math.round(tax);
+        }
+
+        function calculate() {
+            let salary = parseFloat(salaryInput.value) || 0;
+            if (toggle.checked) {
+                salary *= 12;  // Monthly to annual
+            } else {
+                salary *= 100000;  // LPA to rupees
+            }
+            
+            const taxNew = calculateTaxNew(salary);
+            const taxOldFull = calculateTaxOld(salary);
+            
+            // Assume common deductions: 80C 1.5L, 80D 50k [web:3][page:1]
+            const deductions = {
+                '80C (PPF, ELSS etc.)': 150000,
+                '80D (Health Insurance)': 50000,
+                'Standard Deduction': 50000
+            };
+            let totalDed = 0;
+            for (let key in deductions) {
+                totalDed += deductions[key];
+            }
+            
+            const taxOldDeducted = calculateTaxOld(salary - totalDed);
+            const savingsOld = totalDed * 0.30 * 1.04;  // Approx at 30% marginal + cess
+            const savingsNew = 0;
+            
+            const betterRegime = taxNew < taxOldDeducted ? 'New' : 'Old';
+            const maxSaving = Math.max(taxOldFull - taxNew, taxOldDeducted - taxNew);
+            
+            let html = `
+                <h2>Results for Annual Income: ₹${salary.toLocaleString()}</h2>
+                <table>
+                    <tr><th>Regime</th><th>Tax Payable (₹)</th></tr>
+                    <tr><td>New Regime</td><td>${taxNew.toLocaleString()}</td></tr>
+                    <tr><td>Old Regime (No Deductions)</td><td>${taxOldFull.toLocaleString()}</td></tr>
+                    <tr class="best"><td>Old Regime (With Deductions)</td><td>${taxOldDeducted.toLocaleString()}</td></tr>
+                </table>
+                <p><strong>Best Regime:</strong> ${betterRegime} Regime (Lower tax: ₹${Math.min(taxNew, taxOldDeducted).toLocaleString()}) [web:1]</p>
+                <h3>Tax Savings in Old Regime:</h3>
+                <ul>
+                    <li>Total Savings: ₹${(taxOldFull - taxOldDeducted).toLocaleString()} (vs no deductions)</li>
+            `;
+            
+            for (let key in deductions) {
+                html += `<li>${key}: ₹${deductions[key].toLocaleString()} deduction [web:3][page:1]</li>`;
+            }
+            html += `
+                </ul>
+                <p class="savings">Maximum Savings Possible: ₹${maxSaving.toLocaleString()} by choosing ${betterRegime} regime.</p>
+            `;
+            
+            document.getElementById('results').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

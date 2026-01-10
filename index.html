@@ -5,134 +5,374 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>India Income Tax Regime Comparator FY 2025-26</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .toggle-container { margin-bottom: 20px; }
-        label { font-weight: bold; }
-        input[type="checkbox"] { transform: scale(1.5); margin-left: 10px; }
-        input[type="number"] { padding: 10px; font-size: 16px; width: 200px; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
-        .results { margin-top: 30px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .best { background-color: #d4edda; font-weight: bold; }
-        .savings { color: green; font-weight: bold; }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 30px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            text-align: center; 
+            color: #333; 
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        .subtitle { 
+            text-align: center; 
+            color: #666; 
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            background: #f8f9ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #e1e5ff;
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 70px;
+            height: 35px;
+            background: #ccc;
+            border-radius: 35px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #4CAF50;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 29px;
+            height: 29px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(35px);
+        }
+        
+        .toggle-labels {
+            display: flex;
+            gap: 20px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1em;
+        }
+        
+        .toggle-labels span.active {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .salary-input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        input[type="number"] { 
+            padding: 18px 25px; 
+            font-size: 20px; 
+            border: 3px solid #ddd; 
+            border-radius: 12px;
+            width: 250px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76,175,80,0.1);
+        }
+        
+        .calculate-btn {
+            padding: 18px 40px;
+            font-size: 18px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(76,175,80,0.3);
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(76,175,80,0.4);
+        }
+        
+        .results { 
+            margin-top: 40px; 
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .best-regime {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .tax-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .regime-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-top: 5px solid #4CAF50;
+        }
+        
+        .regime-card.new-regime {
+            border-top-color: #2196F3;
+        }
+        
+        .regime-card.old-regime {
+            border-top-color: #FF9800;
+        }
+        
+        .regime-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .tax-amount {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .deductions-list {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .deduction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .deduction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .savings-highlight {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .tax-comparison {
+                grid-template-columns: 1fr;
+            }
+            input[type="number"] { width: 200px; }
+            .salary-input-container { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
-    <h1>India Income Tax: New vs Old Regime Comparator (FY 2025-26)</h1>
-    <p>Enter your gross salary and toggle between LPA or monthly salary.</p>
-    
-    <div class="toggle-container">
-        <label for="toggle">Monthly Salary (₹)</label>
-        <input type="checkbox" id="toggle">
-        <span id="salaryLabel">Annual Salary (LPA)</span>
+    <div class="container">
+        <h1>🇮🇳 Income Tax Regime Calculator</h1>
+        <p class="subtitle">FY 2025-26 (AY 2026-27) | Choose between New & Old Tax Regime</p>
+        
+        <div class="input-section">
+            <div class="toggle-container">
+                <div class="toggle-labels">
+                    <span class="mode-label active" id="lpaLabel">Annual (LPA)</span>
+                    <span class="mode-label" id="monthlyLabel">Monthly (₹)</span>
+                </div>
+                <div class="toggle-switch" id="toggleSwitch">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            
+            <div class="salary-input-container">
+                <input type="number" id="salaryInput" placeholder="Enter 10 (for 10 LPA)" step="0.01" min="0">
+                <button class="calculate-btn" onclick="calculate()">Calculate Best Regime</button>
+            </div>
+        </div>
+        
+        <div id="results" class="results"></div>
     </div>
-    
-    <input type="number" id="salaryInput" placeholder="Enter salary (e.g. 10 for 10 LPA or 83333)" step="0.01" min="0">
-    <button onclick="calculate()">Calculate Best Regime</button>
-    
-    <div id="results" class="results"></div>
 
     <script>
-        const toggle = document.getElementById('toggle');
+        const toggleSwitch = document.getElementById('toggleSwitch');
         const salaryInput = document.getElementById('salaryInput');
-        const salaryLabel = document.getElementById('salaryLabel');
+        const lpaLabel = document.getElementById('lpaLabel');
+        const monthlyLabel = document.getElementById('monthlyLabel');
 
-        toggle.addEventListener('change', function() {
-            if (this.checked) {
-                salaryLabel.textContent = 'Monthly Salary (₹)';
-                salaryInput.placeholder = 'Enter monthly salary (e.g. 83333)';
-            } else {
-                salaryLabel.textContent = 'Annual Salary (LPA)';
-                salaryInput.placeholder = 'Enter LPA (e.g. 10)';
-            }
+        let isMonthly = false;
+
+        toggleSwitch.addEventListener('click', function() {
+            isMonthly = !isMonthly;
+            toggleSwitch.classList.toggle('active');
+            lpaLabel.classList.toggle('active');
+            monthlyLabel.classList.toggle('active');
+            
+            updateInputLabel();
         });
 
-        function calculateTaxNew(income) {
-            // New regime slabs FY 2025-26 [web:1][page:2]
-            let tax = 0;
-            if (income > 2400000) tax += (income - 2400000) * 0.30;
-            if (income > 2000000) tax += Math.min(income - 2000000, 400000) * 0.25;
-            if (income > 1600000) tax += Math.min(income - 1600000, 400000) * 0.20;
-            if (income > 1200000) tax += Math.min(income - 1200000, 400000) * 0.15;
-            if (income > 800000) tax += Math.min(income - 800000, 400000) * 0.10;
-            if (income > 400000) tax += Math.min(income - 400000, 400000) * 0.05;
-            
-            // Rebate u/s 87A up to 60k if income <=12L [web:1][page:2]
-            if (income <= 1200000) tax = Math.min(tax, 60000);
-            
-            // Cess 4%
-            tax *= 1.04;
-            return Math.round(tax);
+        function updateInputLabel() {
+            if (isMonthly) {
+                salaryInput.placeholder = 'Enter monthly salary (e.g. 83333)';
+            } else {
+                salaryInput.placeholder = 'Enter annual salary in LPA (e.g. 10)';
+            }
         }
 
-        function calculateTaxOld(income) {
-            // Assume standard deduction 50k old regime [web:1][page:2]
-            let taxable = income - 50000;
-            
+        function calculateTaxNew(income) {
             let tax = 0;
+            if (income > 2400000) tax += Math.min(income - 2400000, income) * 0.30;
+            else if (income > 2000000) tax += (income - 2000000) * 0.25;
+            else if (income > 1600000) tax += (income - 1600000) * 0.20;
+            else if (income > 1200000) tax += (income - 1200000) * 0.15;
+            else if (income > 800000) tax += (income - 800000) * 0.10;
+            else if (income > 400000) tax += (income - 400000) * 0.05;
+            
+            if (income <= 1200000) tax = Math.min(tax, 60000);
+            return Math.round(tax * 1.04);
+        }
+
+        function calculateTaxOld(income, deductions = 0) {
+            let taxable = income - 50000 - deductions;
+            let tax = 0;
+            
             if (taxable > 1000000) tax += (taxable - 1000000) * 0.30;
-            if (taxable > 500000) tax += Math.min(taxable - 500000, 500000) * 0.20;
-            if (taxable > 250000) tax += Math.min(taxable - 250000, 250000) * 0.05;
+            else if (taxable > 500000) tax += (taxable - 500000) * 0.20;
+            else if (taxable > 250000) tax += (taxable - 250000) * 0.05;
             
-            // Rebate u/s 87A up to 12.5k if income <=5L [web:1][page:2]
             if (taxable <= 500000) tax = Math.min(tax, 12500);
-            
-            // Cess 4%
-            tax *= 1.04;
-            return Math.round(tax);
+            return Math.round(tax * 1.04);
         }
 
         function calculate() {
             let salary = parseFloat(salaryInput.value) || 0;
-            if (toggle.checked) {
-                salary *= 12;  // Monthly to annual
+            if (salary === 0) return;
+            
+            if (isMonthly) {
+                salary *= 12;
             } else {
-                salary *= 100000;  // LPA to rupees
+                salary *= 100000;
             }
             
             const taxNew = calculateTaxNew(salary);
-            const taxOldFull = calculateTaxOld(salary);
+            const taxOldNoDed = calculateTaxOld(salary, 0);
             
-            // Assume common deductions: 80C 1.5L, 80D 50k [web:3][page:1]
             const deductions = {
-                '80C (PPF, ELSS etc.)': 150000,
+                '80C (PPF/ELSS/Sukanya)': 150000,
                 '80D (Health Insurance)': 50000,
+                'NPS 80CCD(1B)': 50000,
+                'HRA (if applicable)': 0,
                 'Standard Deduction': 50000
             };
-            let totalDed = 0;
-            for (let key in deductions) {
-                totalDed += deductions[key];
-            }
             
-            const taxOldDeducted = calculateTaxOld(salary - totalDed);
-            const savingsOld = totalDed * 0.30 * 1.04;  // Approx at 30% marginal + cess
-            const savingsNew = 0;
+            let totalDed = 250000; // 80C + 80D + NPS
+            const taxOldWithDed = calculateTaxOld(salary, totalDed);
             
-            const betterRegime = taxNew < taxOldDeducted ? 'New' : 'Old';
-            const maxSaving = Math.max(taxOldFull - taxNew, taxOldDeducted - taxNew);
+            const betterRegime = taxNew < taxOldWithDed ? 'New Regime' : 'Old Regime';
+            const minTax = Math.min(taxNew, taxOldWithDed);
             
             let html = `
-                <h2>Results for Annual Income: ₹${salary.toLocaleString()}</h2>
-                <table>
-                    <tr><th>Regime</th><th>Tax Payable (₹)</th></tr>
-                    <tr><td>New Regime</td><td>${taxNew.toLocaleString()}</td></tr>
-                    <tr><td>Old Regime (No Deductions)</td><td>${taxOldFull.toLocaleString()}</td></tr>
-                    <tr class="best"><td>Old Regime (With Deductions)</td><td>${taxOldDeducted.toLocaleString()}</td></tr>
-                </table>
-                <p><strong>Best Regime:</strong> ${betterRegime} Regime (Lower tax: ₹${Math.min(taxNew, taxOldDeducted).toLocaleString()}) [web:1]</p>
-                <h3>Tax Savings in Old Regime:</h3>
-                <ul>
-                    <li>Total Savings: ₹${(taxOldFull - taxOldDeducted).toLocaleString()} (vs no deductions)</li>
+                <div class="summary-card">
+                    <div>Annual Income: ₹${salary.toLocaleString()}</div>
+                    <div class="best-regime">${betterRegime} is BEST!</div>
+                    <div>Tax Payable: ₹${minTax.toLocaleString()}</div>
+                    <div style="font-size:0.9em; opacity:0.9;">(includes 4% cess)</div>
+                </div>
+                
+                <div class="tax-comparison">
+                    <div class="regime-card new-regime">
+                        <div class="regime-title">🆕 New Regime</div>
+                        <div class="tax-amount">₹${taxNew.toLocaleString()}</div>
+                        <div>No deductions allowed (except standard ₹50k)</div>
+                    </div>
+                    <div class="regime-card old-regime">
+                        <div class="regime-title">👴 Old Regime</div>
+                        <div class="tax-amount" style="color: ${taxOldWithDed < taxNew ? '#4CAF50' : '#f44336'}">₹${taxOldWithDed.toLocaleString()}</div>
+                        <div>After ₹2.5L+ deductions</div>
+                    </div>
+                </div>
+                
+                <div class="regime-card">
+                    <div class="regime-title">💰 Tax Savings Breakdown (Old Regime)</div>
+                    <div class="deductions-list">
             `;
             
             for (let key in deductions) {
-                html += `<li>${key}: ₹${deductions[key].toLocaleString()} deduction [web:3][page:1]</li>`;
+                html += `<div class="deduction-item">
+                    <span>${key}</span>
+                    <span>₹${deductions[key].toLocaleString()}</span>
+                </div>`;
             }
+            
             html += `
-                </ul>
-                <p class="savings">Maximum Savings Possible: ₹${maxSaving.toLocaleString()} by choosing ${betterRegime} regime.</p>
+                    </div>
+                    <div style="margin-top:15px; font-size:1.1em;">
+                        <strong>Total Deductions: ₹${totalDed.toLocaleString()}</strong>
+                    </div>
+                </div>
+                
+                <div class="savings-highlight">
+                    🎉 <strong>You save ₹${(taxOldNoDed - minTax).toLocaleString()}</strong> by choosing ${betterRegime}!
+                </div>
             `;
             
             document.getElementById('results').innerHTML = html;

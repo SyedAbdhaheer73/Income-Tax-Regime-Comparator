@@ -176,6 +176,12 @@
             border-top-color: #FF9800;
         }
         
+        .regime-card.best-regime {
+            border-top-color: #4CAF50 !important;
+            box-shadow: 0 15px 40px rgba(76,175,80,0.3);
+            transform: scale(1.02);
+        }
+        
         .regime-title {
             font-size: 1.3em;
             font-weight: bold;
@@ -327,26 +333,39 @@
             let totalDed = 250000; // 80C + 80D + NPS
             const taxOldWithDed = calculateTaxOld(salary, totalDed);
             
-            const betterRegime = taxNew < taxOldWithDed ? 'New Regime' : 'Old Regime';
-            const minTax = Math.min(taxNew, taxOldWithDed);
+            // **NEW LOGIC**: If taxes equal, prefer New Regime
+            let betterRegime, minTax, bestTaxNew, bestTaxOld;
+            if (taxNew <= taxOldWithDed) {
+                betterRegime = 'New Regime';
+                minTax = taxNew;
+                bestTaxNew = true;
+                bestTaxOld = false;
+            } else {
+                betterRegime = 'Old Regime';
+                minTax = taxOldWithDed;
+                bestTaxNew = false;
+                bestTaxOld = true;
+            }
             
             let html = `
                 <div class="summary-card">
                     <div>Annual Income: ₹${salary.toLocaleString()}</div>
                     <div class="best-regime">${betterRegime} is BEST!</div>
                     <div>Tax Payable: ₹${minTax.toLocaleString()}</div>
-                    <div style="font-size:0.9em; opacity:0.9;">(includes 4% cess)</div>
+                    <div style="font-size:0.9em; opacity:0.9;">
+                        ${taxNew === taxOldWithDed ? '(Taxes equal - New Regime preferred)' : '(includes 4% cess)'}
+                    </div>
                 </div>
                 
                 <div class="tax-comparison">
-                    <div class="regime-card new-regime">
+                    <div class="regime-card new-regime ${bestTaxNew ? 'best-regime' : ''}">
                         <div class="regime-title">🆕 New Regime</div>
-                        <div class="tax-amount">₹${taxNew.toLocaleString()}</div>
+                        <div class="tax-amount" style="color: ${bestTaxNew ? '#4CAF50' : '#666'}">₹${taxNew.toLocaleString()}</div>
                         <div>No deductions allowed (except standard ₹50k)</div>
                     </div>
-                    <div class="regime-card old-regime">
+                    <div class="regime-card old-regime ${bestTaxOld ? 'best-regime' : ''}">
                         <div class="regime-title">👴 Old Regime</div>
-                        <div class="tax-amount" style="color: ${taxOldWithDed < taxNew ? '#4CAF50' : '#f44336'}">₹${taxOldWithDed.toLocaleString()}</div>
+                        <div class="tax-amount" style="color: ${bestTaxOld ? '#4CAF50' : '#666'}">₹${taxOldWithDed.toLocaleString()}</div>
                         <div>After ₹2.5L+ deductions</div>
                     </div>
                 </div>

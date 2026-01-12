@@ -3,65 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Income Tax Regime Comparator (FY 2025-26)</title>
+  <title>Income Tax Regime Comparator</title>
 
   <style>
+    /* 🌈 Vibrant animated background */
     body {
-      font-family: Arial, sans-serif;
-      background: #f6f7fb;
-      padding: 20px;
+      font-family: "Segoe UI", sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2, #ff6ec4);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
     .container {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: rgba(255, 255, 255, 0.95);
+      width: 100%;
+      max-width: 420px;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
     }
+
     h1 {
       text-align: center;
+      margin-bottom: 20px;
+      color: #1e293b;
     }
+
     label {
+      font-weight: 600;
+      margin-top: 14px;
       display: block;
-      margin-top: 15px;
-      font-weight: bold;
+      color: #334155;
     }
+
     input, select {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
       padding: 10px;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 15px;
     }
+
+    .toggle {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .toggle button {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      background: #e2e8f0;
+    }
+
+    .toggle button.active {
+      background: #6366f1;
+      color: white;
+    }
+
+    button.calculate {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+    }
+
     .result {
       margin-top: 20px;
-      background: #f1f5f9;
+      background: #f8fafc;
       padding: 15px;
-      border-radius: 5px;
+      border-radius: 10px;
     }
+
     .highlight {
+      color: #16a34a;
       font-weight: bold;
-      color: green;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #475569;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Income Tax Regime Comparator</h1>
 
-    <label>Annual Gross Income (₹)</label>
-    <input type="number" id="income" placeholder="e.g. 1200000" />
+  <div class="container">
+    <h1>Income Tax Comparator</h1>
+
+    <label>Pay Frequency</label>
+    <div class="toggle">
+      <button id="monthlyBtn" class="active" onclick="setMode('monthly')">Monthly</button>
+      <button id="annualBtn" onclick="setMode('annual')">Annual</button>
+    </div>
+
+    <label id="incomeLabel">Monthly Income (₹)</label>
+    <input type="number" id="income" placeholder="e.g. 100000" />
 
     <label>Income Type</label>
     <select id="incomeType">
@@ -69,115 +131,113 @@
       <option value="nonSalaried">Non-Salaried</option>
     </select>
 
-    <label>Deductions (Old Regime Only – ₹)</label>
+    <label>Deductions (Old Regime only – ₹)</label>
     <input type="number" id="deductions" placeholder="e.g. 150000" />
 
-    <button onclick="calculateTax()">Compare Tax</button>
+    <button class="calculate" onclick="calculateTax()">Compare Tax</button>
 
     <div class="result" id="result"></div>
+
+    <footer>
+      Made with ❤️ by <strong>Syed Abdhaheer</strong>
+    </footer>
   </div>
 
   <script>
     const STANDARD_DEDUCTION = 75000;
     const CESS_RATE = 0.04;
 
+    let mode = "monthly";
+
+    function setMode(selected) {
+      mode = selected;
+
+      document.getElementById("monthlyBtn").classList.toggle("active", mode === "monthly");
+      document.getElementById("annualBtn").classList.toggle("active", mode === "annual");
+
+      document.getElementById("incomeLabel").innerText =
+        mode === "monthly" ? "Monthly Income (₹)" : "Annual Income (₹)";
+    }
+
     function calculateNewRegimeTax(grossIncome, isSalaried) {
       let taxableIncome = grossIncome;
 
-      if (isSalaried) {
-        taxableIncome -= STANDARD_DEDUCTION;
-      }
-
+      if (isSalaried) taxableIncome -= STANDARD_DEDUCTION;
       taxableIncome = Math.max(0, taxableIncome);
 
       let tax = 0;
 
-      // New Regime Slabs FY 2025-26
-      if (taxableIncome > 400000) {
+      if (taxableIncome > 400000)
         tax += (Math.min(taxableIncome, 800000) - 400000) * 0.05;
-      }
-      if (taxableIncome > 800000) {
+
+      if (taxableIncome > 800000)
         tax += (Math.min(taxableIncome, 1200000) - 800000) * 0.10;
-      }
-      if (taxableIncome > 1200000) {
+
+      if (taxableIncome > 1200000)
         tax += (Math.min(taxableIncome, 1600000) - 1200000) * 0.15;
-      }
-      if (taxableIncome > 1600000) {
+
+      if (taxableIncome > 1600000)
         tax += (Math.min(taxableIncome, 2000000) - 1600000) * 0.20;
-      }
-      if (taxableIncome > 2000000) {
+
+      if (taxableIncome > 2000000)
         tax += (taxableIncome - 2000000) * 0.30;
-      }
 
-      // ✅ Section 87A Rebate (KEY FIX)
-      if (taxableIncome <= 1200000) {
-        tax = 0;
-      }
+      // ✅ Section 87A rebate
+      if (taxableIncome <= 1200000) tax = 0;
 
-      if (tax > 0) {
-        tax += tax * CESS_RATE;
-      }
+      if (tax > 0) tax += tax * CESS_RATE;
 
       return Math.round(tax);
     }
 
     function calculateOldRegimeTax(grossIncome, deductions, isSalaried) {
       let taxableIncome = grossIncome - deductions;
-
-      if (isSalaried) {
-        taxableIncome -= STANDARD_DEDUCTION;
-      }
-
+      if (isSalaried) taxableIncome -= STANDARD_DEDUCTION;
       taxableIncome = Math.max(0, taxableIncome);
 
       let tax = 0;
 
-      // Old Regime Slabs
-      if (taxableIncome > 250000) {
+      if (taxableIncome > 250000)
         tax += (Math.min(taxableIncome, 500000) - 250000) * 0.05;
-      }
-      if (taxableIncome > 500000) {
+
+      if (taxableIncome > 500000)
         tax += (Math.min(taxableIncome, 1000000) - 500000) * 0.20;
-      }
-      if (taxableIncome > 1000000) {
+
+      if (taxableIncome > 1000000)
         tax += (taxableIncome - 1000000) * 0.30;
-      }
 
-      // Section 87A (Old Regime)
-      if (taxableIncome <= 500000) {
-        tax = 0;
-      }
+      if (taxableIncome <= 500000) tax = 0;
 
-      if (tax > 0) {
-        tax += tax * CESS_RATE;
-      }
+      if (tax > 0) tax += tax * CESS_RATE;
 
       return Math.round(tax);
     }
 
     function calculateTax() {
-      const income = Number(document.getElementById("income").value);
+      let income = Number(document.getElementById("income").value);
       const deductions = Number(document.getElementById("deductions").value || 0);
-      const incomeType = document.getElementById("incomeType").value;
+      const isSalaried = document.getElementById("incomeType").value === "salaried";
 
       if (!income || income <= 0) {
         alert("Please enter valid income");
         return;
       }
 
-      const isSalaried = incomeType === "salaried";
+      if (mode === "monthly") income *= 12;
 
       const newTax = calculateNewRegimeTax(income, isSalaried);
       const oldTax = calculateOldRegimeTax(income, deductions, isSalaried);
 
-      let better = newTax < oldTax ? "New Regime" : "Old Regime";
+      const better = newTax < oldTax ? "New Regime" : "Old Regime";
 
       document.getElementById("result").innerHTML = `
-        <p><strong>New Regime Tax:</strong> ₹${newTax}</p>
-        <p><strong>Old Regime Tax:</strong> ₹${oldTax}</p>
+        <p><strong>Annual Income:</strong> ₹${income.toLocaleString()}</p>
+        <p><strong>New Regime Tax:</strong> ₹${newTax.toLocaleString()}</p>
+        <p><strong>Old Regime Tax:</strong> ₹${oldTax.toLocaleString()}</p>
         <p class="highlight">Better Option: ${better}</p>
       `;
     }
   </script>
+
 </body>
 </html>
